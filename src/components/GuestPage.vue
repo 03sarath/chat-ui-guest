@@ -106,6 +106,7 @@ export default {
   },
   created() {
     this.initializeWebSocket();
+    this.fetchChatHistory();
   },
   beforeDestroy() {
     if (this.wsClient) {
@@ -113,8 +114,44 @@ export default {
     }
   },
   methods: {
+    async fetchChatHistory() {
+      const restApiBase = "https://1mbpmhume2.execute-api.us-east-1.amazonaws.com/default/Chat_history";
+      const url = `${restApiBase}?guest_id=${this.guestEmail}&session_id=${this.sessionId}&event_id=${this.eventId}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (response.ok && data.data) {
+          const chatHistory = data.data.chat_history;
+          this.displayChatHistory(chatHistory);
+        } else {
+          console.error("Failed to fetch chat history:", data.error || data);
+        }
+      } catch (error) {
+        console.error("Error fetching chat history:", error);
+      }
+    },
+
+    displayChatHistory(history) {
+      if (!Array.isArray(history)) {
+        console.error("Invalid chat history format:", history);
+        return;
+      }
+
+      this.messages = history.map(msg => ({
+        text: msg.Message || '[No message]',
+        isGuest: msg.Sender === this.guestEmail,
+        timestamp: new Date(msg.Timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isEditing: false,
+        editText: ''
+      }));
+
+      this.scrollToBottom();
+    },
+
     initializeWebSocket() {
-      const wsUrl = `wss://0ug96h4n9g.execute-api.us-east-1.amazonaws.com/production?guest_id=${this.guestEmail}&session_id=${this.sessionId}&event_id=${this.eventId}`;
+      const wsUrl = `wss://d6wg986jrj.execute-api.us-east-1.amazonaws.com/production?guest_id=${this.guestEmail}&session_id=${this.sessionId}&event_id=${this.eventId}`;
       this.wsClient = new WebSocketClient(wsUrl, this.sessionId);
       
       this.wsClient.addMessageHandler(this.handleIncomingMessage);
