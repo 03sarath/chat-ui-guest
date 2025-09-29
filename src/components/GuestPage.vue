@@ -94,8 +94,9 @@ export default {
     return {
       guestEmail: 'test@gmail.com',
       hostEmail: 'host@gmail.com',
-      sessionId: 'session_test',
-      eventId: 'event_2',
+      sessionId: 'session-abc-123',
+      customer_id: 'customer-abc-123',
+      eventId: 'event-abc-123',
       messages: [],
       newMessage: '',
       isConnected: false,
@@ -114,7 +115,7 @@ export default {
   },
   methods: {
     initializeWebSocket() {
-      const wsUrl = `wss://0ug96h4n9g.execute-api.us-east-1.amazonaws.com/production?guest_id=${this.guestEmail}&session_id=${this.sessionId}&event_id=${this.eventId}`;
+      const wsUrl = `wss://mtz1c1yy87.execute-api.ap-south-1.amazonaws.com/production?guest_id=${this.guestEmail}&session_id=${this.sessionId}&event_id=${this.eventId}&customer_id=${this.customer_id}`;
       this.wsClient = new WebSocketClient(wsUrl, this.sessionId);
       
       this.wsClient.addMessageHandler(this.handleIncomingMessage);
